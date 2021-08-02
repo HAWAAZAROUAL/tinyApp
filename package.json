@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/HAWAAZAROUAL/tinyApp/issues"
   },
-  "homepage": "https://github.com/HAWAAZAROUAL/tinyApp#readme"
+  "homepage": "https://github.com/HAWAAZAROUAL/tinyApp#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
