@@ -4,7 +4,14 @@ const PORT = 8080; // default port 8080
 app.set("view engine", "ejs");
 const bodyParser = require("body-parser");
 const { request, response } = require("express");
+
+//require cookie parser
+const cookieParser = require("cookie-parser");
+
+//middleware
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+//cookie parser gives you info needed
 
 const urlDatabase = {
   b2xVn2: "http://www.lighthouselabs.ca",
@@ -22,7 +29,10 @@ app.listen(PORT, () => {
 
 //this provides html template
 app.get("/urls/new", (req, res) => {
-  res.render("urlsNew");
+  const templateVars = {
+    Username: req.cookies["Username"]
+  }
+  res.render("urlsNew", templateVars);
 });
 
 //this is the route to show user their new link - longURL
@@ -30,6 +40,7 @@ app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
+    Username: req.cookies["Username"],
   };
   res.render("urlsShow", templateVars);
 });
@@ -66,14 +77,24 @@ app.post("/urls/:shortURL", (req, res) => {
 //post login
 app.post("/login", (req, res) => {
   res.cookie("Username", req.body.Username);
-  res.redirect("urls");
+  res.redirect("/urls");
 });
+
+//post logout
+app.post("/logout", (req, res) => {
+  res.clearCookie("Username", req.body.Username);
+  res.redirect("/urls");
+});
+
 //display username
-const templateVars = {
-  username: req.cookies["username"],
-  urls: Databaase
+app.get("/urls", (req, res) => {
+ const templateVars = {
+  Username: req.cookies["Username"],
+  urls: urlDatabase,
 };
-res.render("urlsIndex", templateVars);
+res.render("urlsIndex", templateVars); 
+});
+
 
 app.get("/", (req, res) => {
   res.send("Hello from TinyApp");
