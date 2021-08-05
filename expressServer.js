@@ -7,16 +7,19 @@ const { request, response } = require("express");
 
 //require cookie parser
 const cookieParser = require("cookie-parser");
-
 //middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-//cookie parser gives you info needed
+//cookie parser gives you info needed for a certain page to load
 
+//store
 const urlDatabase = {
   b2xVn2: "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com",
 };
+
+//making the users object
+const users = {};
 
 function generateRandomString() {
   return Math.random().toString(36).substr(2, 6);
@@ -30,29 +33,37 @@ app.listen(PORT, () => {
 //this provides html template
 app.get("/urls/new", (req, res) => {
   const templateVars = {
-    Username: req.cookies["Username"]
-  }
+    users,
+    user: users[req.cookies.userId],
+  };
   res.render("urlsNew", templateVars);
 });
 
-//this is the route to show user their new link - longURL
+//this is the route to show user their new link - longURL ---- this needs adjusting
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
-    Username: req.cookies["Username"],
+    users,
+    user: users[req.cookies.userId],
   };
   res.render("urlsShow", templateVars);
 });
 
 app.get("/urls", (req, res) => {
+  console.log("req.cookies:", req.cookies);
   const templateVars = { urls: urlDatabase };
   res.render("urlsIndex", templateVars);
 });
 
-//requests to this endpoint will redirect to longURL
+//requests to this endpoint will redirect to longURL ----- this needs adjusting
 app.get("/u/:shortURL", (req, res) => {
-  res.redirect(urlDatabase[req.params["shortURL"]]);
+  const longURL = urlDatabase[req.params["shortURL"]];
+  if (!longURL) {
+    res.send("shortURL invalid");
+  } else {
+    res.redirect(longURL);
+  }
 });
 
 app.post("/urls", (req, res) => {
@@ -65,7 +76,7 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL];
+  delete urlDatabase[req.params['shortURL']];
   res.redirect("/urls");
 });
 
@@ -74,28 +85,75 @@ app.post("/urls/:shortURL", (req, res) => {
   res.redirect("/urls");
 });
 
+//returns the template for register
+app.get("/register", (req, res) => {
+  const templateVars = {
+    users,
+    user: users[req.cookies.userId],
+  };
+  console.log(templateVars);
+  res.render("register", templateVars);
+});
+
+//make the endpoint for POST register
+app.post("/register", (req, res) => {
+  if (req.body.email === "" || req.body.password === "") {
+    res.status(400).send("Invalid email or password. Try again");
+  }
+  for (const user in users) {
+    if (users[user][email] === email) {
+      res.status(400).send("Email already exists.");
+    }
+  }
+  const userId = generateRandomString();
+  users[userId] = {
+    id: userId,
+    email: req.body.email,
+    password: req.body.password,
+  };
+  res.cookie("userId", userId);
+  console.log("users:", users);
+  res.redirect("/urls");
+});
+
 //post login
 app.post("/login", (req, res) => {
-  res.cookie("Username", req.body.Username);
-  res.redirect("/urls");
+  for (const user in users) {
+    if (users[user]["email"] === req.body.email) {
+      if (users[user]["password"] === req.body.password) {
+        userId = users[user]["id"];
+        res.cookie("userId", userId);
+        res.redirect("/urls");
+        return;
+      }
+    }
+  }
+  res.status(403).send("Invalid email or password. Try again");
+});
+
+app.get("/login", (req, res) => {
+  const templateVars = {
+    users,
+    user: users[req.cookies.userId],
+  };
+  res.render("login", templateVars);
 });
 
 //post logout
 app.post("/logout", (req, res) => {
-  res.clearCookie("Username", req.body.Username);
+  res.clearCookie("userId", req.body.userId);
   res.redirect("/urls");
 });
 
-//display username
+//display userId
 app.get("/urls", (req, res) => {
- const templateVars = {
-  Username: req.cookies["Username"],
-  urls: urlDatabase,
-};
-res.render("urlsIndex", templateVars); 
+  const templateVars = {
+    user: user[req.cookies.userId],
+    urls: urlDatabase,
+  };
+  res.render("urlsIndex", templateVars);
 });
-
-
+//root path
 app.get("/", (req, res) => {
   res.send("Hello from TinyApp");
 });
