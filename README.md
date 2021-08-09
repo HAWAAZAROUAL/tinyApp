@@ -4,7 +4,7 @@
 
 
 ##Dependencies for TinyApp
-### - Node.js
+##### - Node.js
 ### - Express
 ### - EJS
 ### - bcrypt
