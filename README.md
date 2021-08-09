@@ -11,6 +11,6 @@
 ##### - body-parser
 ##### - cookie-session
 
-##Using TinyApp
-###Install all dependencies using ```npm install``` which can be found in the package.json file.
-###Run the app in the terminak using ```node express_server.js```.
+## Using TinyApp
+### Install all dependencies using ```npm install``` which can be found in the package.json file.
+### Run the app in the terminak using ```node express_server.js```.
