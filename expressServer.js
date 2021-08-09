@@ -118,10 +118,10 @@ app.get("/login", (req, res) => {
 
 //post login
 app.post("/login", (req, res) => {
-  const email = req.body.email;
+  let email = req.body.email;
   let password = req.body.password;
-  const userid = getUserByEmail(email, users);
-  const checkPassword = bcrypt.compareSync(password, users[userid].password);
+  let userid = getUserByEmail(email, users);
+  let checkPassword = bcrypt.compareSync(password, users[userid].password);
   if (!userid) {
     return res.status(403).send("Invalid email or password. Try again");
   } else if (!checkPassword) {
