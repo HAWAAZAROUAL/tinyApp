@@ -199,7 +199,9 @@ app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   //console.log("shortURL:", shortURL);
   const longURL = addHttp(req.body.update);
+  
   urlDatabase[shortURL]["longURL"] = longURL;
+  
   res.redirect(303, `/urls${req.params.shortURL}`);
 });
 
