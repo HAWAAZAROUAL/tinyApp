@@ -194,15 +194,14 @@ app.post("/logout", (req, res) => {
 app.post("/urls/:shortURL", (req, res) => {
   if (!req.session.user_id) {
     res.status(403).send("You must log in to vew this page");
-  }
-
-  const shortURL = req.params.shortURL;
-  //console.log("shortURL:", shortURL);
+  } else {
+    const shortURL = req.params.shortURL;
   const longURL = addHttp(req.body.update);
   
   urlDatabase[shortURL]["longURL"] = longURL;
   
-  res.redirect(303, `/urls${req.params.shortURL}`);
+  res.redirect(303, `/urls/${req.params.shortURL}`);
+  }
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
